@@ -30,18 +30,24 @@
 # sudo /sbin/vboxconfig
 # service virtualbox restart
 
+# Defined Key Locations
 sign_file="/usr/src/linux-headers-$(uname -r)/scripts/sign-file"
 mok_key="/var/lib/shim-signed/mok/MOK.priv"
 mok_cert="/var/lib/shim-signed/mok/MOK.der"
 
+# Sign the modules
 for modfile in $(dirname $(modinfo -n vboxdrv))/*.ko; do
   echo "Signing $modfile"
   $sign_file sha256 $mok_key $mok_cert $modfile
 done
+
+# Load the modules
 echo "Loading vbox modules"
 modprobe vboxdrv
 modprobe vboxnetflt
 modprobe vboxpci
 modprobe vboxnetadp
+
+# Check loaded modules
 echo "Loaded vbox modules:"
 lsmod | grep vbox
